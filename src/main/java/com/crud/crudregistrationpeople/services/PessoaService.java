@@ -5,8 +5,8 @@ import com.crud.crudregistrationpeople.domain.Pessoa;
 import com.crud.crudregistrationpeople.repositories.ContatoRepository;
 import com.crud.crudregistrationpeople.repositories.PessoaRepository;
 
-import com.crud.crudregistrationpeople.requests.PessoaRequest;
-import com.crud.crudregistrationpeople.requests.ContatoRequest;
+import com.crud.crudregistrationpeople.requests.*;
+
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -52,12 +52,9 @@ public class PessoaService {
 
         Pessoa pessoaSalva = pessoaRepository.save(novaPessoa);
 
-        for (Contato contato : pessoaSalva.getContatos()) {
-            contatoRepository.save(contato);
-        }
-
         return pessoaSalva;
     }
+
     public Pessoa updatePessoa(Long id, PessoaRequest pessoaRequest) {
         Pessoa pessoaExistente = pessoaRepository.findById(id).orElse(null);
         if (pessoaExistente != null) {
