@@ -1,8 +1,7 @@
 package com.crud.crudregistrationpeople.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
-import org.hibernate.validator.constraints.Email;
-import org.hibernate.validator.constraints.NotBlank;
 
 @Entity
 @Table(name = "contato")
@@ -12,12 +11,14 @@ public class Contato {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank
-    @Email
     private String email;
 
-    @NotBlank
     private String telefone;
+
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name = "pessoa_id")
+    @JsonIgnoreProperties("contatos")
+    private Pessoa pessoa;
 
     public Contato(Long id, String email, String telefone, Pessoa pessoa) {
         this.id = id;
@@ -26,9 +27,8 @@ public class Contato {
         this.pessoa = pessoa;
     }
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinColumn(name = "pessoa_id")
-    private Pessoa pessoa;
+    public Contato() {
+    }
 
     public Long getId() {
         return id;

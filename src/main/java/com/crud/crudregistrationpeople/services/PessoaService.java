@@ -4,8 +4,16 @@ import com.crud.crudregistrationpeople.domain.Contato;
 import com.crud.crudregistrationpeople.domain.Pessoa;
 import com.crud.crudregistrationpeople.repositories.ContatoRepository;
 import com.crud.crudregistrationpeople.repositories.PessoaRepository;
+
+import com.crud.crudregistrationpeople.requests.PessoaRequest;
+import com.crud.crudregistrationpeople.requests.ContatoRequest;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 @Service
 public class PessoaService {
@@ -16,37 +24,86 @@ public class PessoaService {
     @Autowired
     private ContatoRepository contatoRepository;
 
-    // Método para buscar uma Pessoa por ID
     public Pessoa getPessoaById(Long id) {
         return pessoaRepository.findById(id).orElse(null);
     }
 
-    // Método para criar uma nova Pessoa
-    public Pessoa createPessoa(Pessoa pessoa) {
-        // Implementar a lógica de validação e criação aqui
-        return pessoaRepository.save(pessoa);
+    public List<Pessoa> getAllPessoas() {
+        return pessoaRepository.findAll();
     }
 
-    // Método para atualizar uma Pessoa existente
-    public Pessoa updatePessoa(Long id, Pessoa pessoa) {
-        // Implementar a lógica de validação e atualização aqui
-        return pessoaRepository.save(pessoa);
+    @Transactional
+    public Pessoa createPessoaComContatos(PessoaRequest pessoaRequest) {
+        Pessoa novaPessoa = new Pessoa();
+        novaPessoa.setNome(pessoaRequest.getNome());
+        novaPessoa.setCpf(pessoaRequest.getCpf());
+        novaPessoa.setDataNascimento(pessoaRequest.getDataNascimento());
+
+        List<Contato> contatos = new ArrayList<>();
+        for (ContatoRequest contatoRequest : pessoaRequest.getContatos()) {
+            Contato novoContato = new Contato();
+            novoContato.setEmail(contatoRequest.getEmail());
+            novoContato.setTelefone(contatoRequest.getTelefone());
+            novoContato.setPessoa(novaPessoa);
+            contatos.add(novoContato);
+        }
+
+        novaPessoa.setContatos(contatos);
+
+        Pessoa pessoaSalva = pessoaRepository.save(novaPessoa);
+
+        for (Contato contato : pessoaSalva.getContatos()) {
+            contatoRepository.save(contato);
+        }
+
+        return pessoaSalva;
+    }
+    public Pessoa updatePessoa(Long id, PessoaRequest pessoaRequest) {
+        Pessoa pessoaExistente = pessoaRepository.findById(id).orElse(null);
+        if (pessoaExistente != null) {
+            pessoaExistente.setNome(pessoaRequest.getNome());
+            pessoaExistente.setCpf(pessoaRequest.getCpf());
+            pessoaExistente.setDataNascimento(pessoaRequest.getDataNascimento());
+
+            List<ContatoRequest> novosContatos = pessoaRequest.getContatos();
+            List<Contato> contatosExistente = pessoaExistente.getContatos();
+
+            for (ContatoRequest novoContato : novosContatos) {
+                boolean contatoAtualizado = false;
+                for (Contato contato : contatosExistente) {
+                    if (contato.getId() != null) {
+                        contato.setEmail(novoContato.getEmail());
+                        contato.setTelefone(novoContato.getTelefone());
+                        contatoAtualizado = true;
+                        break;
+                    }
+                }
+
+                if (!contatoAtualizado) {
+                    // Criar novo contato
+                    Contato contato = new Contato();
+                    contato.setEmail(novoContato.getEmail());
+                    contato.setTelefone(novoContato.getTelefone());
+                    contato.setPessoa(pessoaExistente);
+                    contatosExistente.add(contato);
+                }
+            }
+
+            return pessoaRepository.save(pessoaExistente);
+        }
+        return null;
     }
 
-    // Método para excluir uma Pessoa
+
+
+
     public boolean deletePessoa(Long id) {
-        // Implementar a lógica de exclusão aqui
+        Optional<Pessoa> pessoaOptional = pessoaRepository.findById(id);
+        if (pessoaOptional.isPresent()) {
+            pessoaRepository.delete(pessoaOptional.get());
+            return true;
+        }
         return false;
     }
 
-    public Pessoa createPessoaComContatos(Pessoa pessoa) {
-        Pessoa novaPessoa = pessoaRepository.save(pessoa); // Salva a pessoa para obter o ID gerado
-
-        for (Contato contato : novaPessoa.getContatos()) {
-            contato.setPessoa(novaPessoa); // Associa a pessoa ao contato
-            contatoRepository.save(contato); // Salva o contato com a associação correta
-        }
-
-        return novaPessoa;
-    }
 }

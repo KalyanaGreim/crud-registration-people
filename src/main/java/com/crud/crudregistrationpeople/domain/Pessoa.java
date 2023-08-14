@@ -1,10 +1,7 @@
 package com.crud.crudregistrationpeople.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
-import org.hibernate.validator.constraints.NotBlank;
-import org.hibernate.validator.constraints.br.CPF;
-
-import javax.validation.constraints.Past;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -16,15 +13,15 @@ public class Pessoa {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank
     private String nome;
 
-    @NotBlank
-    @CPF
     private String cpf;
 
-    @Past
     private LocalDate dataNascimento;
+
+    @OneToMany(mappedBy = "pessoa", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnoreProperties("pessoa")
+    private List<Contato> contatos;
 
     public Pessoa(Long id, String nome, String cpf, LocalDate dataNascimento, List<Contato> contatos) {
         this.id = id;
@@ -34,8 +31,11 @@ public class Pessoa {
         this.contatos = contatos;
     }
 
-    @OneToMany(mappedBy = "pessoa", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Contato> contatos;
+
+
+    public Pessoa() {
+
+    }
 
     public List<Contato> getContatos() {
         return contatos;

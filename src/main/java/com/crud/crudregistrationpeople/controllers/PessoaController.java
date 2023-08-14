@@ -1,12 +1,18 @@
 package com.crud.crudregistrationpeople.controllers;
 
+import com.crud.crudregistrationpeople.domain.Contato;
 import com.crud.crudregistrationpeople.domain.Pessoa;
 import com.crud.crudregistrationpeople.repositories.PessoaRepository;
+import com.crud.crudregistrationpeople.requests.PessoaRequest;
 import com.crud.crudregistrationpeople.services.PessoaService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/pessoas")
@@ -28,20 +34,20 @@ public class PessoaController {
         }
     }
 
-//    @PostMapping
-//    public ResponseEntity<Pessoa> createPessoa(@RequestBody Pessoa pessoa) {
-//        Pessoa novaPessoa = pessoaService.createPessoa(pessoa);
-//        return ResponseEntity.status(HttpStatus.CREATED).body(novaPessoa);
-//    }
+    @GetMapping
+    public ResponseEntity<List<Pessoa>> getAllPessoas() {
+        List<Pessoa> pessoas = pessoaService.getAllPessoas();
+        return ResponseEntity.ok(pessoas);
+    }
 
     @PostMapping
-    public ResponseEntity<Pessoa> createPessoa(@RequestBody Pessoa pessoa) {
-        Pessoa novaPessoa = pessoaService.createPessoaComContatos(pessoa);
+    public ResponseEntity<Pessoa> createPessoa(@Valid @RequestBody PessoaRequest pessoaRequest) {
+        Pessoa novaPessoa = pessoaService.createPessoaComContatos(pessoaRequest);
         return ResponseEntity.status(HttpStatus.CREATED).body(novaPessoa);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Pessoa> updatePessoa(@PathVariable Long id, @RequestBody Pessoa pessoa) {
+    public ResponseEntity<Pessoa> updatePessoa(@PathVariable Long id, @RequestBody PessoaRequest pessoa) {
         Pessoa pessoaAtualizada = pessoaService.updatePessoa(id, pessoa);
         if (pessoaAtualizada != null) {
             return ResponseEntity.ok(pessoaAtualizada);
