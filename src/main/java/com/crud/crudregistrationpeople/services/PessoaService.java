@@ -5,10 +5,10 @@ import com.crud.crudregistrationpeople.domain.Pessoa;
 import com.crud.crudregistrationpeople.repositories.ContatoRepository;
 import com.crud.crudregistrationpeople.repositories.PessoaRepository;
 
-import com.crud.crudregistrationpeople.requests.*;
 
+import com.crud.crudregistrationpeople.requests.ContatoRequest;
+import com.crud.crudregistrationpeople.requests.PessoaRequest;
 import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -18,11 +18,15 @@ import java.util.Optional;
 @Service
 public class PessoaService {
 
-    @Autowired
-    private PessoaRepository pessoaRepository;
 
-    @Autowired
-    private ContatoRepository contatoRepository;
+    private final PessoaRepository pessoaRepository;
+
+    private final ContatoRepository contatoRepository;
+
+    public PessoaService(PessoaRepository pessoaRepository, ContatoRepository contatoRepository) {
+        this.pessoaRepository = pessoaRepository;
+        this.contatoRepository = contatoRepository;
+    }
 
     public Pessoa getPessoaById(Long id) {
         return pessoaRepository.findById(id).orElse(null);
