@@ -9,6 +9,8 @@ import com.crud.crudregistrationpeople.repositories.PessoaRepository;
 import com.crud.crudregistrationpeople.requests.ContatoRequest;
 import com.crud.crudregistrationpeople.requests.PessoaRequest;
 import jakarta.transaction.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -32,8 +34,8 @@ public class PessoaService {
         return pessoaRepository.findById(id).orElse(null);
     }
 
-    public List<Pessoa> getAllPessoas() {
-        return pessoaRepository.findAll();
+    public Page<Pessoa> getAllPessoas(int page, int size) {
+        return pessoaRepository.findAll(PageRequest.of(page, size));
     }
 
     @Transactional

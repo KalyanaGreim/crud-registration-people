@@ -7,6 +7,7 @@ import com.crud.crudregistrationpeople.requests.PessoaRequest;
 import com.crud.crudregistrationpeople.services.PessoaService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -35,8 +36,9 @@ public class PessoaController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Pessoa>> getAllPessoas() {
-        List<Pessoa> pessoas = pessoaService.getAllPessoas();
+    public ResponseEntity<Page<Pessoa>> getAllPessoas(@RequestParam(value = "page", required = false, defaultValue = "0") int page,
+                                                      @RequestParam(value = "size", required = false, defaultValue = "5") int size) {
+        Page<Pessoa> pessoas = pessoaService.getAllPessoas(page, size);
         return ResponseEntity.ok(pessoas);
     }
 
